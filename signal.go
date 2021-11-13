@@ -26,15 +26,25 @@ func (channels ISignalsBus) Generate() <-chan ISignal {
 			select {
 			case a := <-c:
 				signal <- a
-			default:
-				continue
 			}
 		}
 	}(channels)
 	return signal
 }
 
-// Send Отправка сигнала в шину
-func (channel ISignalBus) Send(signal ISignal) {
-	channel <- signal
+// Send signals to the channel
+func (c ISignalBus) Send(signals ...ISignal) {
+	for _, s := range signals {
+		select {
+		case c <- s:
+		}
+	}
+}
+
+// Send singals to the channels
+//	channels.Send(signal, signal, ...)
+func (channels ISignalsBus) Send(signals ...ISignal) {
+	for i := range channels {
+		channels[i].Send(signals...)
+	}
 }
